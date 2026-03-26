@@ -1,9 +1,10 @@
 name: Build Release
 
-on:
+于:
   push:
     tags:
-      - 'v*'  # 仅在推送 tag 时触发（如 v1.0.0, v2.1.3 等）
+      - 'v*'              # 推送标签时触发（如 v1.0.0）
+  workflow_dispatch:      # 允许手动触发
 
 jobs:
   release:
@@ -11,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-latest, ubuntu-latest ]  # 移除 macOS
+        os: [ windows-latest, ubuntu-latest ]   # 仅 Windows 和 Ubuntu
     runs-on: ${{ matrix.os }}
 
     permissions:
@@ -95,6 +96,6 @@ jobs:
         uses: paneron/action-electron-builder@v1.8.1
         with:
           package_manager: pnpm
-          release: true           # 自动创建 Release
-          draft: true            # 创建为草稿状态，不自动发布
+          release: ${{ github.ref_type == 'tag' }}      # 只有标签推送时才创建 Release
+          draft: ${{ github.ref_type == 'tag' }}        # 只有标签推送时才设为草稿
           github_token: ${{ secrets.GITHUB_TOKEN }}
